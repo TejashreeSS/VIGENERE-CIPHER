@@ -35,34 +35,46 @@ STEP-8: Repeat the above steps to generate the entire cipher text.
 #include <string.h>
 #include <ctype.h>
 
-void process(char s[], char k[], char r[], int enc) {
-    int i, j = 0, n = strlen(k);
-    for (i = 0; s[i]; i++) {
-        if (isalpha(s[i])) {
-            char b = isupper(s[i]) ? 'A' : 'a';
-            int x = toupper(k[j++ % n]) - 'A';
-            r[i] = (s[i] - b + (enc ? x : -x) + 26) % 26 + b;
-        } else r[i] = s[i];
+void encrypt(char text[], char key[], char result[]) {
+    int i, j = 0, n = strlen(key);
+    for (i = 0; text[i]; i++) {
+        if (isalpha(text[i])) {
+            result[i] = (text[i] - 'A' + key[j % n] - 'A') % 26 + 'A';
+            j++;
+        } else result[i] = text[i];
     }
-    r[i] = '\0';
+    result[i] = '\0';
+}
+
+void decrypt(char text[], char key[], char result[]) {
+    int i, j = 0, n = strlen(key);
+    for (i = 0; text[i]; i++) {
+        if (isalpha(text[i])) {
+            result[i] = (text[i] - 'A' - key[j % n] + 'A' + 26) % 26 + 'A';
+            j++;
+        } else result[i] = text[i];
+    }
+    result[i] = '\0';
 }
 
 int main() {
-    char text[1000], key[100], enc[1000], dec[1000];
+    char text[100], key[50], enc[100], dec[100];
 
     printf("Enter plaintext: ");
-    fgets(text, sizeof(text), stdin);
-    text[strcspn(text, "\n")] = '\0';
-
+    scanf(" %[^\n]", text);
     printf("Enter key: ");
     scanf("%s", key);
 
-    for (int i = 0; key[i]; i++) key[i] = toupper(key[i]);
+    for (int i = 0; key[i]; i++)
+        key[i] = toupper(key[i]);
 
-    process(text, key, enc, 1);
+    for (int i = 0; text[i]; i++)
+        text[i] = toupper(text[i]);
+
+    encrypt(text, key, enc);
+    decrypt(enc, key, dec);
+
     printf("Encrypted: %s\n", enc);
-
-    process(enc, key, dec, 0);
     printf("Decrypted: %s\n", dec);
 
     return 0;
