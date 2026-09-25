@@ -35,57 +35,35 @@ STEP-8: Repeat the above steps to generate the entire cipher text.
 #include <string.h>
 #include <ctype.h>
 
-void encrypt(char text[], char key[], char result[]) {
-    int textLen = strlen(text);
-    int keyLen = strlen(key);
-    int i, j = 0;
-
-    for (i = 0; i < textLen; i++) {
-        if (isalpha(text[i])) {
-            char base = isupper(text[i]) ? 'A' : 'a';
-            result[i] = ( (text[i] - base) + (toupper(key[j % keyLen]) - 'A') ) % 26 + base;
-            j++;
-        } else {
-            result[i] = text[i];
-        }
+void process(char s[], char k[], char r[], int enc) {
+    int i, j = 0, n = strlen(k);
+    for (i = 0; s[i]; i++) {
+        if (isalpha(s[i])) {
+            char b = isupper(s[i]) ? 'A' : 'a';
+            int x = toupper(k[j++ % n]) - 'A';
+            r[i] = (s[i] - b + (enc ? x : -x) + 26) % 26 + b;
+        } else r[i] = s[i];
     }
-    result[i] = '\0';
-}
-
-void decrypt(char text[], char key[], char result[]) {
-    int textLen = strlen(text);
-    int keyLen = strlen(key);
-    int i, j = 0;
-
-    for (i = 0; i < textLen; i++) {
-        if (isalpha(text[i])) {
-            char base = isupper(text[i]) ? 'A' : 'a';
-            result[i] = ( ( (text[i] - base) - (toupper(key[j % keyLen]) - 'A') + 26 ) % 26 ) + base;
-            j++;
-        } else {
-            result[i] = text[i]; 
-        }
-    }
-    result[i] = '\0';
+    r[i] = '\0';
 }
 
 int main() {
     char text[1000], key[100], enc[1000], dec[1000];
 
-    printf("Simulation of Vigenere Cipher\n");
-    printf("Enter the plaintext: ");
-    scanf("%[^\n]", text); 
-    getchar();
-    printf("Enter the key: ");
+    printf("Enter plaintext: ");
+    fgets(text, sizeof(text), stdin);
+    text[strcspn(text, "\n")] = '\0';
+
+    printf("Enter key: ");
     scanf("%s", key);
 
-    for (int i = 0; i < strlen(key); i++) key[i] = toupper(key[i]);
+    for (int i = 0; key[i]; i++) key[i] = toupper(key[i]);
 
-    encrypt(text, key, enc);
-    printf("Encrypted text : %s\n", enc);
+    process(text, key, enc, 1);
+    printf("Encrypted: %s\n", enc);
 
-    decrypt(enc, key, dec);
-    printf("Decrypted text : %s\n", dec);
+    process(enc, key, dec, 0);
+    printf("Decrypted: %s\n", dec);
 
     return 0;
 }
